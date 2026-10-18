@@ -1,0 +1,7 @@
+{
+  "id": "Xenova/paraphrase-multilingual-MiniLM-L12-v2",
+  "dtype": "q8",
+  "queryPrefix": "",
+  "passagePrefix": "",
+  "downloadMB": 135
+}
