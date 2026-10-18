@@ -4,12 +4,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { lintSpec } from './lint.mjs';
+import { lintSpec, allowedTags } from './lint.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXAMPLE = readFileSync(join(HERE, '../references/spec-0000-example-onboarding.md'), 'utf8');
@@ -124,4 +124,17 @@ test('CLI: a missing file is reported as a lint error, not a crash', () => {
   const r = spawnSync('node', [join(HERE, 'lint.mjs'), 'specs/spec-9999-missing.md'], { encoding: 'utf8' });
   assert.equal(r.status, 1);
   assert.match(r.stdout, /file not found: specs\/spec-9999-missing\.md/);
+});
+
+test('module tags come from specs/modules.json when present', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'spec-modules-'));
+  assert.equal(allowedTags(dir), null);
+  mkdirSync(join(dir, 'specs'));
+  writeFileSync(join(dir, 'specs/modules.json'), JSON.stringify({ modules: ['api', 'web'] }));
+  assert.deepEqual(allowedTags(dir), ['api', 'web']);
+});
+
+test('without specs/modules.json any kebab-case module tag is accepted', () => {
+  const text = EXAMPLE.replaceAll('`[mcp]`', '`[billing-api]`').replace(/^(Modules:.*)\bmcp\b/m, '$1billing-api');
+  assert.ok(!errorsFor(text).some((e) => e.includes('unknown tag')), errorsFor(text).join('\n'));
 });

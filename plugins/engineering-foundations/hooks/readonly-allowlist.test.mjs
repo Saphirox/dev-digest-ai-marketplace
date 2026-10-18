@@ -135,12 +135,17 @@ test('verify: the project checks a plan Verify step names', () => {
   allowed('verify', 'pnpm typecheck');
   allowed('verify', 'pnpm vitest run src/app/x.test.tsx');
   allowed('verify', 'cd mcp && npm test');
+  allowed('verify', 'yarn test');
+  allowed('verify', 'python3 -m pytest tests/test_api.py');
+  allowed('verify', 'go test ./...');
+  allowed('verify', 'cargo test');
   allowed('verify', 'npm run typecheck');
   allowed('verify', 'node --test .claude/hooks/readonly-allowlist.test.mjs');
   allowed('verify', './node_modules/.bin/tsc --noEmit');
   denied('verify', './node_modules/.bin/tsc');
   denied('verify', 'pnpm db:migrate');
   denied('verify', 'npm run e2e');
+  denied('verify', 'go test -exec sh ./...');
   denied('verify', 'pnpm add left-pad');
 });
 

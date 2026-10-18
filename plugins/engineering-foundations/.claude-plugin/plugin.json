@@ -1,6 +1,6 @@
 {
   "name": "engineering-foundations",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Shared skills (security, engineering insights, Mermaid, review severity) and read-only Bash guards used by the dev-digest agent plugins.",
   "author": {
     "name": "Saphirox",

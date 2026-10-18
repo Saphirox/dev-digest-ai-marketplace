@@ -33,7 +33,7 @@ silent for the main session and everyone else:
 | `research-tools:researcher`, `sdd-engineering:implementation-planner` | `read`: file, search and git reads, read-only SQL |
 | `architecture-reviewer:architecture-reviewer` | `architecture`: staged diff only, plus `arch:check` |
 | `sdd-engineering:security-reviewer` | `security`: reads plus typecheck and `arch:check` |
-| `sdd-engineering:plan-verifier` | `verify`: reads plus the project's test, typecheck and lint commands |
+| `sdd-engineering:plan-verifier` | `verify`: reads plus test, typecheck and lint commands (pnpm, npm, yarn, node --test, pytest, go test, cargo) |
 
 Every segment of a command must match the profile, or the whole command is
 denied. Rules live in `hooks/readonly-allowlist.mjs`; tests run with

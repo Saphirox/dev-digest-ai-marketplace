@@ -1,6 +1,6 @@
 {
   "name": "research-tools",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Researcher agent for questions that need docs, specs, changelogs or prior art, returning cited conclusions.",
   "author": {
     "name": "Saphirox",
@@ -17,7 +17,7 @@
   "dependencies": [
     {
       "name": "engineering-foundations",
-      "version": "^0.1.0"
+      "version": "^1.0.0"
     }
   ]
 }

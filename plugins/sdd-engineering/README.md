@@ -131,10 +131,12 @@ The agents read and write these paths in your repo:
 | `docs/retro/ledger/` | `workflow-retro` |
 | `INSIGHTS.md` per module | `implementer`, `test-writer` |
 | `AGENTS.md` / `CLAUDE.md` | you; agents read module rules and commands from them |
+| `specs/modules.json` (optional) | you; `{ "modules": ["api", "web"] }` limits spec module tags |
 
-The prompts were written for the dev-digest repo (`client/`, `server/`,
-`reviewer-core/`, `mcp/`, pnpm). In another layout, describe your modules and
-check commands in `AGENTS.md` or `CLAUDE.md`.
+The prompts use the dev-digest repo (`client/`, `server/`, `reviewer-core/`,
+`mcp/`, pnpm) as their example. In any other project the agents take modules,
+commands and rules from your `CLAUDE.md` / `AGENTS.md`, and skip `AGENTS.md`
+or `INSIGHTS.md` when they are missing. No DevDigest files are needed.
 
 ## Releases
 
@@ -142,4 +144,5 @@ Versions follow semver; see [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Requires |
 |---------|----------|
+| 1.0.0 | `engineering-foundations` ^1.0.0, `architecture-reviewer` ^1.0.0, `research-tools` ^1.0.0, `dev-digest-stack` ^1.0.0 |
 | 0.1.0 | `engineering-foundations` ^0.1.0, `architecture-reviewer` ^0.1.0, `research-tools` ^0.1.0, `dev-digest-stack` ^0.1.0 |
