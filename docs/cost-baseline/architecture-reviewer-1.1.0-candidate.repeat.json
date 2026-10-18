@@ -1,0 +1,205 @@
+{
+  "label": "candidate-1.1.0",
+  "git_sha": "fc21fc9",
+  "dirty": false,
+  "times": 2,
+  "vitestArgs": [
+    "architecture-reviewer.eval"
+  ],
+  "tests": {
+    "plugins/architecture-reviewer/evals/architecture-reviewer/architecture-reviewer.eval.ts > agent:architecture-reviewer > flags both layering violations in the blast diff": {
+      "nodeid": "plugins/architecture-reviewer/evals/architecture-reviewer/architecture-reviewer.eval.ts > agent:architecture-reviewer > flags both layering violations in the blast diff",
+      "label": "flags both layering violations in the blast diff",
+      "pass": {
+        "passed": 2,
+        "total": 2,
+        "rate": 1
+      },
+      "practices": {
+        "flags server/src/modules/blast/helpers.ts importing `FastifyReply` from 'fastify' as a layering violation (a pure helper must not depend on the HTTP/presentation ring)": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        },
+        "flags `new BlastRepository(db)` inside BlastService as a violation of dependency injection / the single composition root (the service should receive its BlastStore through deps)": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        },
+        "every finding carries an explicit rule citation pointing to a specific documented section — a `SKILL.md#…` or `references/…#…` anchor, or a named `AGENTS.md` section — not only a prose explanation of the problem": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        },
+        "assigns each finding a severity from the critical / warning / suggestion scale": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        },
+        "quotes the offending added line verbatim as evidence for each finding": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        }
+      },
+      "metrics": {
+        "durationMs": {
+          "mean": 48302,
+          "stddev": 15065.61707996058,
+          "min": 37649,
+          "max": 58955,
+          "n": 2
+        },
+        "inputTokens": {
+          "mean": 10,
+          "stddev": 0,
+          "min": 10,
+          "max": 10,
+          "n": 2
+        },
+        "outputTokens": {
+          "mean": 4020,
+          "stddev": 275.77164466275354,
+          "min": 3825,
+          "max": 4215,
+          "n": 2
+        },
+        "numTurns": {
+          "mean": 10,
+          "stddev": 0,
+          "min": 10,
+          "max": 10,
+          "n": 2
+        },
+        "toolCallCount": {
+          "mean": 8,
+          "stddev": 0,
+          "min": 8,
+          "max": 8,
+          "n": 2
+        }
+      }
+    },
+    "plugins/architecture-reviewer/evals/architecture-reviewer/architecture-reviewer.eval.ts > agent:architecture-reviewer > stays in the architecture lane on the blast diff": {
+      "nodeid": "plugins/architecture-reviewer/evals/architecture-reviewer/architecture-reviewer.eval.ts > agent:architecture-reviewer > stays in the architecture lane on the blast diff",
+      "label": "stays in the architecture lane on the blast diff",
+      "pass": {
+        "passed": 0,
+        "total": 2,
+        "rate": 0
+      },
+      "practices": {
+        "does not present a runtime bug, performance or security concern as an architecture finding": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        },
+        "does not comment on naming, style or test coverage": {
+          "passed": 0,
+          "total": 2,
+          "rate": 0
+        },
+        "does not issue a PASS/FAIL or PASS/BLOCK verdict": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        }
+      },
+      "metrics": {
+        "durationMs": {
+          "mean": 44954,
+          "stddev": 4584.880369213574,
+          "min": 41712,
+          "max": 48196,
+          "n": 2
+        },
+        "inputTokens": {
+          "mean": 9,
+          "stddev": 1.4142135623730951,
+          "min": 8,
+          "max": 10,
+          "n": 2
+        },
+        "outputTokens": {
+          "mean": 4063,
+          "stddev": 281.4284989122459,
+          "min": 3864,
+          "max": 4262,
+          "n": 2
+        },
+        "numTurns": {
+          "mean": 9,
+          "stddev": 0,
+          "min": 9,
+          "max": 9,
+          "n": 2
+        },
+        "toolCallCount": {
+          "mean": 7,
+          "stddev": 0,
+          "min": 7,
+          "max": 7,
+          "n": 2
+        }
+      }
+    },
+    "plugins/architecture-reviewer/evals/architecture-reviewer/architecture-reviewer.eval.ts > agent:architecture-reviewer > reports no findings for a comment-only change": {
+      "nodeid": "plugins/architecture-reviewer/evals/architecture-reviewer/architecture-reviewer.eval.ts > agent:architecture-reviewer > reports no findings for a comment-only change",
+      "label": "reports no findings for a comment-only change",
+      "pass": {
+        "passed": 2,
+        "total": 2,
+        "rate": 1
+      },
+      "practices": {
+        "reports no findings for the comment-only change (observations at most) — it does not invent a critical or warning finding": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        },
+        "states the no-findings result plainly in its opening verdict line": {
+          "passed": 2,
+          "total": 2,
+          "rate": 1
+        }
+      },
+      "metrics": {
+        "durationMs": {
+          "mean": 8091.5,
+          "stddev": 1328.6536418495227,
+          "min": 7152,
+          "max": 9031,
+          "n": 2
+        },
+        "inputTokens": {
+          "mean": 3,
+          "stddev": 1.4142135623730951,
+          "min": 2,
+          "max": 4,
+          "n": 2
+        },
+        "outputTokens": {
+          "mean": 529.5,
+          "stddev": 61.518289963229634,
+          "min": 486,
+          "max": 573,
+          "n": 2
+        },
+        "numTurns": {
+          "mean": 1.5,
+          "stddev": 0.7071067811865476,
+          "min": 1,
+          "max": 2,
+          "n": 2
+        },
+        "toolCallCount": {
+          "mean": 0.5,
+          "stddev": 0.7071067811865476,
+          "min": 0,
+          "max": 1,
+          "n": 2
+        }
+      }
+    }
+  }
+}
