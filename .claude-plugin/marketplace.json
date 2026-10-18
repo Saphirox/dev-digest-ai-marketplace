@@ -8,6 +8,48 @@
   },
   "plugins": [
     {
+      "name": "architecture-reviewer",
+      "source": "./plugins/architecture-reviewer",
+      "description": "Read-only architecture review of a staged diff: code in the wrong layer or module, cross-module reach-ins, re-declared contracts.",
+      "category": "code-review",
+      "tags": ["architecture", "review", "agents"]
+    },
+    {
+      "name": "dev-digest-stack",
+      "source": "./plugins/dev-digest-stack",
+      "description": "Stack skills for TypeScript web apps: React, Next.js, Fastify, Drizzle, PostgreSQL, Zod, onion architecture, testing and dependency audits.",
+      "category": "development",
+      "tags": ["react", "nextjs", "fastify", "drizzle", "zod", "typescript"]
+    },
+    {
+      "name": "engineering-foundations",
+      "source": "./plugins/engineering-foundations",
+      "description": "Shared skills (security, engineering insights, Mermaid, review severity) and read-only Bash guards used by the dev-digest agent plugins.",
+      "category": "development",
+      "tags": ["security", "mermaid", "hooks", "shared"]
+    },
+    {
+      "name": "git-rebase-sync",
+      "source": "./plugins/git-rebase-sync",
+      "description": "Rebases onto the fresh default branch before every git commit, with conflict summaries and a recovery playbook.",
+      "category": "productivity",
+      "tags": ["git", "rebase", "hooks"]
+    },
+    {
+      "name": "research-tools",
+      "source": "./plugins/research-tools",
+      "description": "Researcher agent for questions that need docs, specs, changelogs or prior art, returning cited conclusions.",
+      "category": "productivity",
+      "tags": ["research", "web", "agents"]
+    },
+    {
+      "name": "sdd-engineering",
+      "source": "./plugins/sdd-engineering",
+      "description": "Spec-Driven Development pipeline: spec, plan, implement, review, test and verify with dedicated agents, plus run and retro workflows.",
+      "category": "development",
+      "tags": ["sdd", "spec", "planning", "agents", "workflow"]
+    },
+    {
       "name": "summarize-changes",
       "source": "./plugins/summarize-changes",
       "description": "Summarizes recent git changes into a short, readable digest.",
