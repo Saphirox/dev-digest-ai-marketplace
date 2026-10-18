@@ -1,0 +1,20 @@
+{
+  "name": "dev-digest-stack",
+  "version": "0.1.0",
+  "description": "Stack skills for TypeScript web apps: React, Next.js, Fastify, Drizzle, PostgreSQL, Zod, onion architecture, testing and dependency audits.",
+  "author": {
+    "name": "Saphirox",
+    "url": "https://github.com/Saphirox"
+  },
+  "homepage": "https://github.com/Saphirox/dev-digest-ai-marketplace/tree/main/plugins/dev-digest-stack",
+  "repository": "https://github.com/Saphirox/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "nextjs",
+    "fastify",
+    "drizzle",
+    "zod",
+    "typescript"
+  ]
+}

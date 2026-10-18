@@ -1,0 +1,16 @@
+{
+  "_comment": "Ordered rules: the first regex that matches a package name wins. Edit freely; unknown names fall back to 'other'.",
+  "rules": [
+    ["types", "^@types/"],
+    ["testing", "^(vitest|jest|jsdom|happy-dom|playwright|@playwright/|@testing-library/|testcontainers|@testcontainers/|supertest|msw)"],
+    ["build-tooling", "^(typescript|tsx|ts-node|esbuild|vite|@vitejs/|webpack|rollup|postcss|autoprefixer|tailwindcss|@tailwindcss/|drizzle-kit|dependency-cruiser|eslint|prettier|pino-pretty|nodemon)"],
+    ["web-framework", "^(fastify|@fastify/|fastify-|express|next|react|react-dom|hono)$|^(@fastify/|fastify-)"],
+    ["database", "^(drizzle-orm|postgres|pg|pgvector|kysely|prisma|@prisma/)"],
+    ["ai-llm", "^(openai|@anthropic-ai/|js-tiktoken|tiktoken|@modelcontextprotocol/|ai$|@ai-sdk/)"],
+    ["validation", "^(zod|yup|valibot|ajv)$"],
+    ["ui", "^(lucide-react|recharts|mermaid|react-markdown|remark-|rehype-|@tanstack/|next-intl|clsx|framer-motion)"],
+    ["vcs-github", "^(octokit|@octokit/|simple-git|isomorphic-git)"],
+    ["code-analysis", "^(@ast-grep/|@vscode/ripgrep|graphology|tree-sitter|web-tree-sitter)"],
+    ["utility", "^(dotenv|p-queue|p-limit|fflate|lodash|date-fns|nanoid|uuid)"]
+  ]
+}
