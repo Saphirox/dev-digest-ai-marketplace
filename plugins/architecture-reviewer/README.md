@@ -22,6 +22,8 @@ reviews against).
 | Type | Name | Purpose |
 |------|------|---------|
 | Agent | `architecture-reviewer:architecture-reviewer` | Layer and module boundary review of `git diff --cached` (`opus`) |
+| Reference | `references/repo-rules.md` | dev-digest hard repo rules and the boundary check, read when the diff touches them |
+| Reference | `references/bash-allowlist.md` | The commands the read-only hook allows |
 
 ## Usage
 
