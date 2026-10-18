@@ -1,0 +1,38 @@
+{
+  "$comment": "Scenarios for the spec-writing skill + spec-creator (Anthropic skill best practices: evaluation-driven development). Run each by hand with spec-creator, check every expected_behavior item, and compare against a run without the skill. No built-in runner.",
+  "evals": [
+    {
+      "name": "ui-feature-with-gaps",
+      "skills": ["spec-writing"],
+      "query": "Spec an AI onboarding tour for an indexed repository. Design: screenshots of the tour page (sections list + one section with a diagram).",
+      "expected_behavior": [
+        "Asks about at least one unshown state (unindexed repo or stale tour) before writing a requirement for it",
+        "Every requirement line has an ID, module tags, a must/should priority and an EARS 'shall'",
+        "The Modules: header equals the union of the tags, owner first",
+        "Every requirement has a Traceability row whose source is a brief quote, a frame path or a D-n",
+        "The lint exits 0 on the written file"
+      ]
+    },
+    {
+      "name": "backend-only-contract",
+      "skills": ["spec-writing"],
+      "query": "Spec an MCP tool get_onboarding that returns the stored tour for a repository.",
+      "expected_behavior": [
+        "Design: line says 'none — backend only' and no UI requirement is written",
+        "The mcp-tagged requirement names the tool and states what it returns relative to the API",
+        "Untrusted inputs lists the model-generated tour text and how the tool treats it",
+        "No file paths, function names or implementation steps appear outside external contracts"
+      ]
+    },
+    {
+      "name": "vague-brief-rewritten",
+      "skills": ["spec-writing"],
+      "query": "Spec: 'The PR page should load fast and handle errors properly.'",
+      "expected_behavior": [
+        "No requirement contains 'fast' or 'properly'; each is replaced by a number, a state or an open question",
+        "The performance requirement is an NFR with a number, or an open question asking for the threshold",
+        "The error requirement uses IF ... THEN with a named failure condition"
+      ]
+    }
+  ]
+}

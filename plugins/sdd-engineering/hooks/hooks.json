@@ -1,0 +1,21 @@
+{
+  "description": "spec-creator write scope and spec lint",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/spec-creator-hook.mjs\" pre" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/spec-creator-hook.mjs\" post" }
+        ]
+      }
+    ]
+  }
+}

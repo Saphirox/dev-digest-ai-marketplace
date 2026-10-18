@@ -1,0 +1,37 @@
+{
+  "name": "sdd-engineering",
+  "version": "0.1.0",
+  "description": "Spec-Driven Development pipeline: spec, plan, implement, review, test and verify with dedicated agents, plus run and retro workflows.",
+  "author": {
+    "name": "Saphirox",
+    "url": "https://github.com/Saphirox"
+  },
+  "homepage": "https://github.com/Saphirox/dev-digest-ai-marketplace/tree/main/plugins/sdd-engineering",
+  "repository": "https://github.com/Saphirox/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "sdd",
+    "spec",
+    "planning",
+    "agents",
+    "workflow"
+  ],
+  "dependencies": [
+    {
+      "name": "engineering-foundations",
+      "version": "^0.1.0"
+    },
+    {
+      "name": "architecture-reviewer",
+      "version": "^0.1.0"
+    },
+    {
+      "name": "research-tools",
+      "version": "^0.1.0"
+    },
+    {
+      "name": "dev-digest-stack",
+      "version": "^0.1.0"
+    }
+  ]
+}
