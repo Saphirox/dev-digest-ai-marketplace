@@ -14,3 +14,6 @@ site/public/llms.txt
 # IDE
 .idea/
 .vscode/
+
+# vitest cache (evals run from the repo root)
+.vite/
