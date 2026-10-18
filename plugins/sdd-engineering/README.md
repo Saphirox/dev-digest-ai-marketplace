@@ -144,4 +144,5 @@ Versions follow semver; see [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Requires |
 |---------|----------|
+| 1.0.0 | `engineering-foundations` ^1.0.0, `architecture-reviewer` ^1.0.0, `research-tools` ^1.0.0, `dev-digest-stack` ^1.0.0 |
 | 0.1.0 | `engineering-foundations` ^0.1.0, `architecture-reviewer` ^0.1.0, `research-tools` ^0.1.0, `dev-digest-stack` ^0.1.0 |
