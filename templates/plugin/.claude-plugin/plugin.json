@@ -1,0 +1,13 @@
+{
+  "name": "my-plugin",
+  "version": "0.1.0",
+  "description": "One sentence: what this plugin does.",
+  "author": {
+    "name": "Your Name",
+    "url": "https://github.com/your-handle"
+  },
+  "homepage": "https://github.com/Saphirox/dev-digest-ai-marketplace/tree/main/plugins/my-plugin",
+  "repository": "https://github.com/Saphirox/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": []
+}
