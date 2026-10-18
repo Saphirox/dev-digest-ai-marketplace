@@ -1,0 +1,17 @@
+{
+  "name": "summarize-changes",
+  "version": "0.1.0",
+  "description": "Summarizes recent git changes into a short, readable digest.",
+  "author": {
+    "name": "Saphirox",
+    "url": "https://github.com/Saphirox"
+  },
+  "homepage": "https://github.com/Saphirox/dev-digest-ai-marketplace/tree/main/plugins/summarize-changes",
+  "repository": "https://github.com/Saphirox/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "git",
+    "digest",
+    "changelog"
+  ]
+}
