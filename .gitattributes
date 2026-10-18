@@ -1,0 +1,2 @@
+# Keep LF everywhere so manifests and scripts behave the same on every OS.
+* text=auto eol=lf

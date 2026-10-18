@@ -1,0 +1,56 @@
+name: Validate marketplace
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@2.1.302
+
+      - name: Validate marketplace manifest
+        run: claude plugin validate . --strict
+
+      - name: Validate each plugin
+        run: |
+          status=0
+          for dir in plugins/*/; do
+            echo "::group::$dir"
+            claude plugin validate "$dir" --strict || status=1
+            echo "::endgroup::"
+          done
+          exit $status
+
+      - name: Validate plugin template
+        run: claude plugin validate templates/plugin --strict
+
+      - name: Build site catalog
+        run: python3 scripts/build_catalog.py --out "$RUNNER_TEMP/site"
+
+      - name: Check repo invariants
+        env:
+          # PRs compare against the target branch; pushes against the previous tip of main.
+          BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: |
+          # The very first push to a branch has no previous tip (all zeros).
+          if [ -n "$BASE_REF" ] && ! [[ "$BASE_REF" =~ ^0+$ ]] && git cat-file -e "$BASE_REF^{commit}" 2>/dev/null; then
+            python3 scripts/check_invariants.py --base "$BASE_REF"
+          else
+            python3 scripts/check_invariants.py
+          fi

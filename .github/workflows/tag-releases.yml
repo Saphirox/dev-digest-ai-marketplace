@@ -1,0 +1,68 @@
+name: Tag plugin releases
+
+# After "Validate marketplace" passes on main, creates a <plugin>--v<version>
+# tag on the main-line commit where each version was introduced. Every run
+# backfills all untagged versions, so a skipped or cancelled run loses nothing.
+# Tags are what scripts/rollback.py restores from.
+
+on:
+  workflow_run:
+    workflows: [Validate marketplace]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tag-releases
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      # No third-party code runs in this job, so the write token in .git/config is not exposed.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Tag untagged plugin versions
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          status=0
+          new_tags=()
+          for dir in plugins/*/; do
+            manifest="${dir}.claude-plugin/plugin.json"
+            name=$(jq -r '.name // empty' "$manifest")
+            version=$(jq -r '.version // empty' "$manifest")
+            if [ -z "$name" ] || [ -z "$version" ]; then
+              echo "::error file=$manifest::missing name or version"; status=1; continue
+            fi
+
+            # Main-line commits that touched plugin.json, oldest first.
+            for sha in $(git log --reverse --first-parent --diff-merges=first-parent --format=%H -- "$manifest"); do
+              v=$(git show "$sha:$manifest" 2>/dev/null | jq -r '.version // empty' 2>/dev/null) || continue
+              [ -n "$v" ] || continue
+              tag="${name}--v${v}"
+              git rev-parse -q --verify "refs/tags/$tag" >/dev/null && continue
+              git tag -a "$tag" "$sha" -m "$name v$v"
+              new_tags+=("$tag")
+              echo "Tagged $tag at $sha"
+            done
+
+            # The shipped files must match the tag for the current version.
+            tag="${name}--v${version}"
+            if ! git diff --quiet "$tag" HEAD -- "$dir"; then
+              echo "::error file=$manifest::$dir changed after $tag without a version bump"
+              status=1
+            fi
+          done
+
+          if [ ${#new_tags[@]} -gt 0 ]; then
+            git push origin "${new_tags[@]/#/refs/tags/}"
+          fi
+          exit $status

@@ -1,0 +1,11 @@
+# Default owner for everything
+*                                   @Saphirox
+
+# Marketplace catalog and CI
+/.claude-plugin/                    @Saphirox
+/.github/                           @Saphirox
+/scripts/                           @Saphirox
+/site/                              @Saphirox
+
+# Per-plugin owners — add a line for each new plugin
+/plugins/summarize-changes/         @Saphirox

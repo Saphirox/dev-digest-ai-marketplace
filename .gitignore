@@ -1,0 +1,16 @@
+.DS_Store
+__pycache__/
+*.pyc
+.claude/settings.local.json
+evals/results/
+
+# Catalog site (site/): dependencies, build output, generated data, model cache
+site/node_modules/
+site/dist/
+site/.model-cache/
+site/public/api/
+site/public/llms.txt
+
+# IDE
+.idea/
+.vscode/

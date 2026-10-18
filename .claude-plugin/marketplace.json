@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "dev-digest",
+  "description": "Dev Digest AI plugins for Claude Code: skills, agents and hooks for everyday engineering work.",
+  "owner": {
+    "name": "Saphirox",
+    "url": "https://github.com/Saphirox"
+  },
+  "plugins": [
+    {
+      "name": "summarize-changes",
+      "source": "./plugins/summarize-changes",
+      "description": "Summarizes recent git changes into a short, readable digest.",
+      "category": "productivity",
+      "tags": ["git", "digest", "changelog"]
+    }
+  ]
+}
