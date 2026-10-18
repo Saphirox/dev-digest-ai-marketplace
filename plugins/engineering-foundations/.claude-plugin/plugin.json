@@ -1,0 +1,18 @@
+{
+  "name": "engineering-foundations",
+  "version": "0.1.0",
+  "description": "Shared skills (security, engineering insights, Mermaid, review severity) and read-only Bash guards used by the dev-digest agent plugins.",
+  "author": {
+    "name": "Saphirox",
+    "url": "https://github.com/Saphirox"
+  },
+  "homepage": "https://github.com/Saphirox/dev-digest-ai-marketplace/tree/main/plugins/engineering-foundations",
+  "repository": "https://github.com/Saphirox/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "mermaid",
+    "hooks",
+    "shared"
+  ]
+}
