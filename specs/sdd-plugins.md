@@ -1,31 +1,33 @@
 # Spec: SDD Engineering plugin family
 
-Status: draft
+Status: implemented (0.1.0)
 Source: `Saphirox/dev-digest`, `.claude/` only (agents, skills, hooks, references)
 
 ## Goal
 
 Ship the dev-digest Spec-Driven Development workflow as installable plugins in this
-marketplace: one `sdd-engineering` plugin with the full pipeline, two standalone
-plugins that are useful on their own (`research-tools`, `architecture-reviewer`),
-and one shared dependency (`engineering-foundations`) so nothing is copied twice.
+marketplace: one `sdd-engineering` plugin with the full pipeline, standalone
+plugins that are useful on their own (`research-tools`, `architecture-reviewer`,
+`git-rebase-sync`), a stack skills plugin (`dev-digest-stack`), and one shared
+dependency (`engineering-foundations`) so nothing is copied twice.
 
 ## Plugins
 
 | Plugin | Contents | Depends on |
 |---|---|---|
 | `engineering-foundations` | skills `security`, `engineering-insights`, `mermaid-diagram`, `review-severity`; read-only Bash guard hook | - |
+| `dev-digest-stack` | skills `drizzle-orm-patterns`, `fastify-best-practices`, `frontend-ui-architecture`, `next-best-practices`, `onion-architecture`, `postgresql-table-design`, `react-best-practices`, `react-testing-library`, `typescript-expert`, `zod`, `dependency-checker` | - |
+| `git-rebase-sync` | skill `git-rebase-sync`; rebase-before-commit hook (opt-in) | - |
 | `research-tools` | agent `researcher` | `engineering-foundations` |
-| `architecture-reviewer` | agent `architecture-reviewer` | `engineering-foundations` |
-| `sdd-engineering` | agents `spec-creator`, `implementation-planner`, `implementer`, `test-writer`, `plan-verifier`, `security-reviewer`; skills `run-sdd`, `workflow-retro`, `spec-writing`; spec-creator scope hook | `engineering-foundations`, `architecture-reviewer`, `research-tools` |
+| `architecture-reviewer` | agent `architecture-reviewer` | `engineering-foundations`, `dev-digest-stack` |
+| `sdd-engineering` | agents `spec-creator`, `implementation-planner`, `implementer`, `test-writer`, `plan-verifier`, `security-reviewer`; skills `run-sdd`, `workflow-retro`, `spec-writing`; spec-creator hook | `engineering-foundations`, `architecture-reviewer`, `research-tools`, `dev-digest-stack` |
 
 All start at `0.1.0`. Dependencies use a caret range on the bare name (resolved in
 this marketplace), e.g. `{ "name": "engineering-foundations", "version": "^0.1.0" }`.
-Claude Code resolves the range against our `<plugin>--vX.Y.Z` tags, which CI already
+Claude Code resolves the range against our `<plugin>--vX.Y.Z` tags, which CI
 creates, and installs missing dependencies automatically.
 
-Installing `sdd-engineering` therefore brings in all four plugins. A user who only
-wants research or architecture review installs that plugin alone.
+Installing `sdd-engineering` brings in five plugins (all but `git-rebase-sync`).
 
 ### Why this split
 
@@ -33,43 +35,20 @@ wants research or architecture review installs that plugin alone.
   on their own, so they live in their own plugins and SDD depends on them.
 - `test-writer` and `security-reviewer` are steps of `/run-sdd`, so they ship with SDD.
 - `spec-writing` is used only by `spec-creator` and stays in SDD.
+- Stack skills are preloaded or loaded by the planner, implementer, test-writer and
+  architecture reviewer; without them the agents still run (a missing preloaded
+  skill is skipped with a warning), but plans lose their rules, so SDD depends on them.
+- `git-rebase-sync` changes how every commit behaves, so it is its own opt-in plugin
+  and nothing depends on it.
 - Skills and hook code used by more than one plugin go to `engineering-foundations`.
-
-## Layout
-
-```
-plugins/
-  engineering-foundations/
-    .claude-plugin/plugin.json
-    hooks/hooks.json                 # PreToolUse Bash -> readonly-guard.mjs
-    hooks/readonly-guard.mjs         # from readonly-allowlist.mjs + readonly-bash.mjs
-    hooks/*.test.mjs
-    skills/security/                 # SKILL.md, checklists.md, examples.md, references.md
-    skills/engineering-insights/     # SKILL.md, template.md
-    skills/mermaid-diagram/          # SKILL.md, examples.md
-    skills/review-severity/SKILL.md  # from .claude/references/review-severity.md, user-invocable: false
-  research-tools/
-    agents/researcher.md
-  architecture-reviewer/
-    agents/architecture-reviewer.md
-  sdd-engineering/
-    agents/{spec-creator,implementation-planner,implementer,test-writer,plan-verifier,security-reviewer}.md
-    skills/run-sdd/SKILL.md
-    skills/workflow-retro/           # SKILL.md, template.md, scripts/session-stats.mjs (+ test)
-    skills/spec-writing/             # SKILL.md, references/, scripts/lint.mjs (+ test), evals/
-    hooks/hooks.json                 # spec-creator scope + spec lint
-    hooks/spec-creator-scope.mjs (+ test)
-```
-
-Every plugin also has `README.md`, `CHANGELOG.md`, `LICENSE` from `templates/plugin/`.
 
 ## Porting rules
 
 1. **Hooks move out of agent frontmatter.** Plugin agents ignore `hooks`,
    `mcpServers` and `permissionMode` (Claude Code docs, sub-agents and plugin
-   components pages). Each restriction becomes a plugin-level `hooks/hooks.json`
-   entry. Hook input carries `agent_type` for tool calls inside a subagent, so the
-   script picks its rule set from that:
+   components pages). Each restriction is a plugin-level `hooks/hooks.json` entry
+   whose script reads `agent_type` from the hook input and acts only for its agents;
+   the main session and other agents are left alone.
 
    | `agent_type` | Profile (unchanged from the source) |
    |---|---|
@@ -77,94 +56,62 @@ Every plugin also has `README.md`, `CHANGELOG.md`, `LICENSE` from `templates/plu
    | `architecture-reviewer:architecture-reviewer` | `architecture` |
    | `sdd-engineering:security-reviewer` | `security` |
    | `sdd-engineering:plan-verifier` | `verify` |
-   | anything else | no decision (hook prints nothing) |
+   | `sdd-engineering:spec-creator` | write scope + spec lint (`sdd-engineering/hooks/spec-creator-hook.mjs`) |
 
-   The guard lives once, in `engineering-foundations`, which is always enabled
-   when any dependent plugin is installed. `spec-creator-scope` and the
-   `spec-writing` lint stay in `sdd-engineering`, matched on
-   `sdd-engineering:spec-creator`.
-2. **Paths.** `$CLAUDE_PROJECT_DIR/.claude/...` becomes `${CLAUDE_PLUGIN_ROOT}/...`
-   in hooks and in agent and skill bodies, and `${CLAUDE_SKILL_DIR}/...` inside a
-   skill. An agent never points into another plugin's files; it preloads that
-   plugin's skill through `skills:` instead (this is why `review-severity`
-   becomes a skill).
-3. **Names.** Agents keep their names; users see them as `<plugin>:<agent>`.
-   Cross-references in agent prompts ("hand off to `test-writer`") use the
-   scoped name so the main session spawns the right agent.
-4. **Manual skills.** `run-sdd` and `workflow-retro` keep
-   `disable-model-invocation: true` and are invoked as `/sdd-engineering:run-sdd`
-   and `/sdd-engineering:workflow-retro`.
-5. **Project files.** The plugins write into the user's project, with the
-   conventions unchanged: `specs/spec-NNNN-<slug>.md`, `docs/plans/NNNN-<slug>.md`
-   (+ `.state.json`), `docs/retro/ledger/`, per-module `INSIGHTS.md`. Plugins never
-   write inside their own directory; persistent plugin state, if needed, goes to
-   `${CLAUDE_PLUGIN_DATA}`.
-6. **Not ported:** project `settings.json` hooks (`rebase-before-commit`, the
-   insights `Stop` reminder). They are project policy, not plugin behaviour; the
-   README shows how to add them to a project.
-
-## How the pipeline works (goes into `sdd-engineering/README.md`)
-
-```
-brief + design -> spec-creator -> specs/spec-NNNN-<slug>.md   (user approves)
-spec          -> implementation-planner -> docs/plans/NNNN-<slug>.md (status: ready)
-/sdd-engineering:run-sdd docs/plans/NNNN-<slug>.md
-   1 implementer (single agent, or waves from the plan's Work split)
-   2 architecture-reviewer on the staged diff, up to 3 fix rounds
-   3 test-writer, one test per acceptance criterion
-   4 plan-verifier, fix loop until the fix list is empty
-   5 security-reviewer (when the plan requires it)
-   6 final report; state kept in docs/plans/NNNN-<slug>.state.json (--resume)
-/sdd-engineering:workflow-retro -> docs/retro/ledger/ entry with proposals
-researcher: on demand, from any step or directly
-```
-
-The README also covers: install (`/plugin install sdd-engineering@dev-digest`),
-what each agent may write, required project conventions (`specs/`, `docs/plans/`,
-`INSIGHTS.md`), Node.js 20+ for the hook and script files, and a **Releases**
-section that links `CHANGELOG.md` and lists the dependency ranges per release.
-
-## Versions and releases
-
-- Each plugin has its own `CHANGELOG.md` and is released with
-  `scripts/release.py <plugin> patch|minor|major`.
-- A breaking change in `engineering-foundations` (renamed skill, changed guard
-  profile) is a major bump; dependents raise their range in the same PR.
-- The root README plugin table gets the four plugins; CODEOWNERS gets four lines.
+   The read-only guard lives once, in `engineering-foundations/hooks/readonly-guard.mjs`.
+   Both entries also accept the bare agent name, because the docs do not say whether
+   `agent_type` carries the `<plugin>:` prefix for plugin agents.
+2. **Paths.** `$CLAUDE_PROJECT_DIR/.claude/...` became `${CLAUDE_PLUGIN_ROOT}/...` in
+   hooks and agent bodies, and `${CLAUDE_SKILL_DIR}/...` inside skills. The spec lint
+   resolves spec paths against `CLAUDE_PROJECT_DIR` (or the cwd), not its own location.
+3. **Cross-plugin skills.** An agent never points into another plugin's files.
+   Preloaded skills use `<plugin>:<skill>` in `skills:`; agents that read a skill on
+   demand (`architecture-reviewer`, `implementation-planner` for `mermaid-diagram`,
+   `spec-creator` for `mermaid-diagram`) got the `Skill` tool instead of `Read` on a
+   `.claude/skills/...` path. `security-reviewer` preloads `security` and
+   `review-severity`. Shared skills name their supporting files as
+   `${CLAUDE_SKILL_DIR}/<file>` so the path is absolute wherever they are loaded.
+4. **Names.** Agents keep their names; each agent body has a short *Plugin names*
+   note mapping skills and agents to their `<plugin>:` prefix. `run-sdd` spawns
+   agents by their full names.
+5. **Manual skills.** `run-sdd` and `workflow-retro` keep
+   `disable-model-invocation: true`: `/sdd-engineering:run-sdd`,
+   `/sdd-engineering:workflow-retro`.
+6. **Project files.** Conventions are unchanged: `specs/spec-NNNN-<slug>.md`,
+   `docs/plans/NNNN-<slug>.md` (+ `.state.json`), `docs/retro/ledger/`, per-module
+   `INSIGHTS.md`. Plugins never write inside their own directory.
+7. **Not ported:** the insights `Stop` reminder (project policy; documented in the
+   `engineering-foundations` README) and the agents outside scope: `investigator`,
+   `brainstorm`, `doc-writer`, `insight-curator`. Prompts still mention them as
+   optional helpers; `run-sdd --docs` runs `doc-writer` only if the project has one.
+8. **Content kept as-is** (decision: port first, generalize later). Prompts still name
+   dev-digest modules (`client/`, `server/`, `reviewer-core/`, `mcp/`) and pnpm
+   commands; READMEs tell other projects to describe theirs in `AGENTS.md` /
+   `CLAUDE.md`. `spec-creator` keeps its Chrome tools; they work only when the
+   extension is connected. Six stack skill descriptions were edited to carry a
+   "Use when" trigger, and `onion-architecture`'s was cut to 1024 characters.
 
 ## Repo changes outside the plugins
 
-- CI: add a `node --test` step for `plugins/*/hooks/*.test.mjs` and
-  `plugins/*/skills/*/scripts/*.test.mjs` (Node is already set up).
-- `check_invariants.py`: check `agents/*.md` frontmatter (`name`, `description`,
-  no ignored `hooks`/`mcpServers`/`permissionMode`), and that every `dependencies`
-  entry names a plugin listed in `marketplace.json`.
+- CI runs `node --test` over `plugins/*/hooks/*.test.mjs` and
+  `plugins/*/skills/*/scripts/*.test.mjs`.
+- `check_invariants.py` checks agent frontmatter (`name` = file name, `description`,
+  no ignored `hooks`/`mcpServers`/`permissionMode`), that every preloaded
+  `<plugin>:<skill>` exists, and that every `dependencies` entry is a plugin listed
+  in `marketplace.json`.
 
-## Delivery order
+## Still to verify in a live session
 
-0. **Spike** (blocks the rest): confirm with `claude --plugin-dir` that
-   (a) `agent_type` for a plugin agent is `<plugin>:<agent>` in hook input, and
-   (b) how an agent's `skills:` names a skill from a dependency plugin (bare name
-   or `plugin:skill`). Neither is documented.
-1. `engineering-foundations`
-2. `research-tools`, `architecture-reviewer`
-3. `sdd-engineering`
-4. CI and invariant updates, root README, CODEOWNERS
+Not documented, and not yet exercised with `claude --plugin-dir`:
 
-## Open questions
+1. `agent_type` for a plugin agent in hook input (`plugin:agent` or bare); both are
+   handled.
+2. Whether `skills:` in a plugin agent resolves `<plugin>:<skill>` names from a
+   dependency plugin. If not, the skills are skipped with a debug-log warning and the
+   agents run without them.
+3. Whether `${CLAUDE_SKILL_DIR}` is substituted when a skill is preloaded through
+   `skills:` (it is for skills invoked directly), and in a skill's `allowed-tools`.
 
-1. **Stack skills.** `implementation-planner`, `implementer`, `test-writer` and
-   `architecture-reviewer` load `onion-architecture`, `frontend-ui-architecture`,
-   `react-*`, `next-best-practices`, `fastify-best-practices`, `drizzle-orm-patterns`,
-   `postgresql-table-design`, `zod`, `typescript-expert`. A missing preloaded skill
-   is skipped with a warning, so agents still run without them. Proposal: a separate
-   optional `dev-digest-stack` plugin; or leave them in the dev-digest repo.
-2. **Repo-specific text in agents.** Prompts name `client/`, `server/`,
-   `reviewer-core/`, `mcp/` and `pnpm arch:check` / `pnpm test`. Port as-is first,
-   or replace with "read the project's CLAUDE.md for module layout and commands"?
-3. **Other referenced agents.** `investigator`, `brainstorm`, `doc-writer`
-   (`/run-sdd --docs`) and `insight-curator` are mentioned by the ported agents but
-   not in scope. Add them (e.g. `doc-writer` to SDD, `investigator`/`brainstorm` to
-   `research-tools`), or remove the references?
-4. **`spec-creator` Chrome tools** (`mcp__claude-in-chrome__*`) only work when the
-   user has that extension connected. Keep them in `tools:`?
+Check: install `sdd-engineering`, run `@agent-research-tools:researcher` with a
+request that needs `rm`, and confirm the deny; ask `security-reviewer` to quote the
+first line of its `checklists.md`.
