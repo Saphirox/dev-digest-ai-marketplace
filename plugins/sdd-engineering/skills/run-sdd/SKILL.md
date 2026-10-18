@@ -19,6 +19,8 @@ full names: `sdd-engineering:implementer`, `sdd-engineering:test-writer`,
 `architecture-reviewer:architecture-reviewer`. `doc-writer` is not part of
 these plugins: `--docs` works only when the project defines its own
 `doc-writer` agent; otherwise say so in the final report and skip step 6.
+Paths such as `server/` below are examples from the reference project; use
+the modules and commands from the project's `CLAUDE.md` / `AGENTS.md`.
 
 Arguments: `$ARGUMENTS`
 

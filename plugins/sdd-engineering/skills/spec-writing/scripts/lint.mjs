@@ -18,7 +18,24 @@ import { fileURLToPath } from 'node:url';
 // The project being specified (the script itself lives in the plugin cache).
 const ROOT = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 
-export const TAGS = ['client', 'server', 'repo-intel', 'reviewer-core', 'mcp'];
+// Module tags: `specs/modules.json` ({ "modules": ["api", "web"] }) when the
+// project has one; otherwise any kebab-case name. Tests are never a module.
+const TAG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const NOT_MODULES = ['e2e', 'test', 'tests'];
+
+export function allowedTags(root = ROOT) {
+  try {
+    const { modules } = JSON.parse(readFileSync(join(root, 'specs/modules.json'), 'utf8'));
+    if (Array.isArray(modules) && modules.length) return modules;
+  } catch {}
+  return null;
+}
+
+function tagProblem(tag, allowed) {
+  if (NOT_MODULES.includes(tag)) return `unknown tag "${tag}" (tests are not a module)`;
+  if (allowed) return allowed.includes(tag) ? null : `unknown tag "${tag}" (allowed: ${allowed.join(', ')})`;
+  return TAG_RE.test(tag) ? null : `unknown tag "${tag}" (use a kebab-case module name)`;
+}
 export const PRIORITIES = ['must', 'should'];
 const STATUSES = ['draft', 'approved', 'implemented'];
 
@@ -76,6 +93,7 @@ function isNone(body) {
 
 /** Lint spec text. `path` is repo-relative or absolute; returns { errors, warnings }. */
 export function lintSpec(text, path = '') {
+  const allowed = allowedTags();
   const errors = [];
   const warnings = [];
   const lines = text.split(/\r?\n/);
@@ -139,7 +157,8 @@ export function lintSpec(text, path = '') {
       const tags = tagList.split(',').map((t) => t.trim()).filter(Boolean);
       if (!tags.length) errors.push(`${id} has no module tag`);
       for (const t of tags) {
-        if (!TAGS.includes(t)) errors.push(`${id} has unknown tag "${t}" (allowed: ${TAGS.join(', ')})`);
+        const problem = tagProblem(t, allowed);
+        if (problem) errors.push(`${id} has ${problem}`);
         usedTags.add(t);
       }
       if (!PRIORITIES.includes(priority)) errors.push(`${id} priority "${priority}" is not must | should`);

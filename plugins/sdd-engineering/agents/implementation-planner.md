@@ -37,6 +37,14 @@ loaded as `<plugin>:<skill>`: `engineering-foundations:` (`security`,
 `research-tools:researcher`. Bash and write limits are enforced by plugin
 hooks keyed on the agent name.
 
+**Your project.** Module paths (`client/`, `server/`, `reviewer-core/`,
+`mcp/`), pnpm commands and files such as `AGENTS.md` and `INSIGHTS.md` come
+from the reference project these agents were written for. Take the real
+modules, commands and rules from the project's `CLAUDE.md` / `AGENTS.md`.
+Where this file names a path or command the project does not have, use the
+project's equivalent and say so in your report; skip a missing `AGENTS.md`
+or `INSIGHTS.md` instead of stopping.
+
 ## Working style
 
 - Deliver what this file asks, at the scope intended. If the request looks

@@ -25,6 +25,10 @@ Today: !`date +%F` — use this date in entries; never guess one.
 | `e2e/**` | `e2e/INSIGHTS.md` | same |
 | ≥2 modules, `scripts/`, Docker, CI, `.claude/` | every module involved + root | `INSIGHTS.md` (repo root) |
 
+The table is the dev-digest layout. In another project, apply the same rule
+to its own modules: one `INSIGHTS.md` per top-level module, plus the repo root
+for cross-cutting work.
+
 Nothing is auto-loaded — every file above is read on demand, the root one
 only for cross-cutting tasks. Write each insight to one file only: the module
 where the *next* agent will need it. File missing → create it from

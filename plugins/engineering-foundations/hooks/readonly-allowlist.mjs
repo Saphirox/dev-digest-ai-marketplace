@@ -67,6 +67,11 @@ const CHECKS = [
   r(/^node --test\b/),
   r(/^(\.\/)?node_modules\/\.bin\/vitest run\b/),
   r(/^(\.\/)?node_modules\/\.bin\/tsc\b/, (s) => /--noEmit\b/.test(s), '`tsc` only with --noEmit'),
+  // Test and lint runners of other stacks, so projects outside dev-digest can be verified.
+  r(/^yarn (run )?(test|typecheck|lint)\b/),
+  r(/^(python3? -m )?pytest\b/),
+  r(/^go (test|vet)\b/, (s) => !/\s-(exec|o)\b/.test(s), '`go test -exec`/`-o` runs or writes a program'),
+  r(/^cargo (test|check|clippy)\b/),
 ];
 
 export const PROFILES = {

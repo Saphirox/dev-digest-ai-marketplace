@@ -131,7 +131,10 @@ IDs run from 1 per kind and are never reused.
 - **Priority:** `must` — not done without it; `should` — wanted, deferrable
   only by a decision (`D-n`), which moves it to *Non-goals* or a follow-up
   spec.
-- **Tags:** `client`, `server`, `repo-intel`, `reviewer-core`, `mcp` —
+- **Tags:** the project's modules — the names listed in `specs/modules.json`
+  (`{ "modules": ["api", "web"] }`) when it exists, otherwise kebab-case module
+  names from the code (dev-digest uses `client`, `server`, `repo-intel`,
+  `reviewer-core`, `mcp`) —
   where the code changes, not where it is tested (so no `e2e`). At least
   one per requirement, taken from the code you traced. Two or more tags
   make a contract: name the route, payload field, event or MCP tool.
