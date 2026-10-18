@@ -21,4 +21,5 @@ Run and make sure all pass:
 claude plugin validate . --strict
 for d in plugins/*/ templates/plugin/; do claude plugin validate "$d" --strict; done
 python3 scripts/check_invariants.py --base origin/main
+node --test plugins/*/hooks/*.test.mjs plugins/*/skills/*/scripts/*.test.mjs
 ```

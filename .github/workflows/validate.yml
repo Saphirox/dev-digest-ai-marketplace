@@ -40,6 +40,12 @@ jobs:
       - name: Validate plugin template
         run: claude plugin validate templates/plugin --strict
 
+      - name: Test plugin hooks and scripts
+        run: |
+          shopt -s nullglob
+          tests=(plugins/*/hooks/*.test.mjs plugins/*/skills/*/scripts/*.test.mjs)
+          if [ ${#tests[@]} -gt 0 ]; then node --test "${tests[@]}"; fi
+
       - name: Build site catalog
         run: python3 scripts/build_catalog.py --out "$RUNNER_TEMP/site"
 

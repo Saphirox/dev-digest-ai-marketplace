@@ -1,0 +1,23 @@
+{
+  "name": "research-tools",
+  "version": "0.1.0",
+  "description": "Researcher agent for questions that need docs, specs, changelogs or prior art, returning cited conclusions.",
+  "author": {
+    "name": "Saphirox",
+    "url": "https://github.com/Saphirox"
+  },
+  "homepage": "https://github.com/Saphirox/dev-digest-ai-marketplace/tree/main/plugins/research-tools",
+  "repository": "https://github.com/Saphirox/dev-digest-ai-marketplace",
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "web",
+    "agents"
+  ],
+  "dependencies": [
+    {
+      "name": "engineering-foundations",
+      "version": "^0.1.0"
+    }
+  ]
+}

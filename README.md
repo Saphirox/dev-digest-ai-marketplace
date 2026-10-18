@@ -40,6 +40,12 @@ Add to the project's committed `.claude/settings.json`:
 
 | Plugin | Description | Components |
 |--------|-------------|------------|
+| [architecture-reviewer](plugins/architecture-reviewer) | Read-only architecture review of a staged diff | 1 agent |
+| [dev-digest-stack](plugins/dev-digest-stack) | React, Next.js, Fastify, Drizzle, PostgreSQL, Zod, TypeScript and architecture skills | 11 skills |
+| [engineering-foundations](plugins/engineering-foundations) | Shared skills and read-only Bash guards for the agent plugins | 4 skills, 1 hook |
+| [git-rebase-sync](plugins/git-rebase-sync) | Rebase onto the default branch before every commit | 1 skill, 1 hook |
+| [research-tools](plugins/research-tools) | Researcher agent with cited web and code evidence | 1 agent |
+| [sdd-engineering](plugins/sdd-engineering) | Spec-Driven Development: spec, plan, implement, review, test, verify | 6 agents, 3 skills, 1 hook |
 | [summarize-changes](plugins/summarize-changes) | Summarizes recent git changes into a short digest | 1 skill |
 
 ## Repository layout

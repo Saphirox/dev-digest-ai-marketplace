@@ -8,4 +8,10 @@
 /site/                              @Saphirox
 
 # Per-plugin owners — add a line for each new plugin
-/plugins/summarize-changes/         @Saphirox
+/plugins/architecture-reviewer/          @Saphirox
+/plugins/dev-digest-stack/               @Saphirox
+/plugins/engineering-foundations/        @Saphirox
+/plugins/git-rebase-sync/                @Saphirox
+/plugins/research-tools/                 @Saphirox
+/plugins/sdd-engineering/                @Saphirox
+/plugins/summarize-changes/              @Saphirox

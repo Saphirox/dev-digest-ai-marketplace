@@ -1,0 +1,86 @@
+{
+  "$comment": "Eval scenarios for the onion-architecture skill (skill-creator schema). Each eval's fixture under fixtures/<case>/ mirrors repo paths. FIXTURE_DIR in a prompt = the fixture dir copied to a neutrally named temp folder (don't point a run at this path: it names the skill). Baseline run: same prompt, without the skill. Fixtures intentionally contain layering violations and carry no comments about them; don't 'fix' them.",
+  "skill_name": "onion-architecture",
+  "evals": [
+    {
+      "id": 1,
+      "name": "review-labels-module",
+      "prompt": "A teammate opened a PR that adds a new `labels` module to the API (workspace labels you can attach to PRs). The new files are in FIXTURE_DIR/server/src/modules/labels/ — they would land at server/src/modules/labels/ in this repo. The zod contracts (Label, LabelList, LabelCreate, LabelPatch) and the `labels` table/migration are added elsewhere in the PR and are fine. Please review the module before I approve it and list the issues you'd ask them to change, each with file:line and the concrete fix.",
+      "expected_output": "Flags (1) GET /labels in routes.ts queries container.db with drizzle-orm directly → move to repository + service; (2) LabelsService.update takes FastifyReply and returns reply.code(404) → throw NotFoundError, error handler maps it; (3) helpers.ts imports drizzle InferSelectModel + db/schema to type LabelRow → type helpers against ports.ts LabelRecord / contract.",
+      "files": [
+        "fixtures/pr-labels/"
+      ],
+      "assertions": [
+        "Flags routes.ts GET /labels querying container.db with drizzle-orm (asc/eq, db/schema) directly in the route, and says to move the query into LabelsRepository behind the service",
+        "Flags LabelsService.update taking a FastifyReply / returning reply.code(404) (HTTP in the application layer), and says to throw NotFoundError and let the shared error handler map it",
+        "Flags helpers.ts importing drizzle-orm InferSelectModel and db/schema to type LabelRow (infrastructure in a pure helpers file), and says to type helpers against the ports.ts LabelRecord / contract type",
+        "Every reported issue cites a file:line location",
+        "States no outdated arch:check facts: does not call routes-no-persistence / pure-module-files-no-io a 'warning', does not cite the old 27-warning baseline, does not present polling/settings/workspace routes as current Drizzle-in-route debt"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "review-digests-service",
+      "prompt": "Can you review this PR before merge? It adds a `digests` module to the server: POST /pulls/:id/digests summarizes all agent reviews on a PR into one short author-facing digest via an LLM, and stamps the PR as digested. Files: FIXTURE_DIR/server/src/modules/digests/ (target path server/src/modules/digests/). Contracts and the migration for the `digests` table and the new pull_requests columns are elsewhere in the PR and already reviewed. Give me the list of things to change, with file:line and how to fix each.",
+      "expected_output": "Flags (1) service.ts constructs an OpenAI SDK client inline with process.env.OPENAI_API_KEY → go through a port backed by container.featureModels (config via container), mockable; (2) digests imports reviews module internals (ReviewRepository from ../reviews/repository.js) in service.ts and routes.ts → declare a module-local port / use a shared seam; (3) insertDigest + markPullDigested are two writes without a transaction → unit-of-work / db.transaction owned by the service.",
+      "files": [
+        "fixtures/pr-digests/"
+      ],
+      "assertions": [
+        "Flags service.ts creating an OpenAI SDK client inline with process.env.OPENAI_API_KEY, and says to go through a port / container.featureModels (or an LLM adapter) instead of an SDK + env read in the service",
+        "Flags the digests module importing the reviews module's internals (ReviewRepository from ../reviews/repository.js in service.ts and/or routes.ts) as a cross-module boundary violation, and proposes a module-local port or shared seam",
+        "Flags insertDigest + markPullDigested as two writes that must succeed together but run without a transaction, and proposes one db.transaction / unit-of-work owned by the service",
+        "Every reported issue cites a file:line location",
+        "States no outdated arch:check facts: does not call routes-no-persistence / pure-module-files-no-io a 'warning', does not cite the old 27-warning baseline, does not present polling/settings/workspace routes as current Drizzle-in-route debt"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "review-mcp-brief-tool",
+      "prompt": "Review a PR for the MCP server package: it adds a `get_pr_brief` tool as a new `brief` module. Files are in FIXTURE_DIR/mcp/src/modules/brief/ (target mcp/src/modules/brief/; registration in modules/index.ts is a one-liner and fine). What would you ask the author to change? file:line + fix for each point please.",
+      "expected_output": "Flags (1) tools.ts imports adapters/devdigest-api/client and constructs its own DevDigestApiClient from process.env instead of using container.client (env only in platform/config); (2) tools.ts inlines the model-facing 'No brief yet…' text instead of a function in modules/_shared/messages.ts; (3) brief reaches into reviews module internals (service.ts imports ReviewsService type, tools.ts imports ReviewsApiRepository/ReviewsService) → no-cross-module-internals; go via own port/_shared or call the API directly through brief's own store.",
+      "files": [
+        "fixtures/pr-mcp-brief/"
+      ],
+      "assertions": [
+        "Flags tools.ts importing adapters/devdigest-api/client and constructing its own DevDigestApiClient from process.env, and says to use container.client (env read only in platform/config)",
+        "Flags the inline model-facing 'No brief for ... yet' text in tools.ts, and says it belongs in modules/_shared/messages.ts as a message function",
+        "Flags the brief module reaching into the reviews module's internals (ReviewsService type in service.ts and/or ReviewsApiRepository/ReviewsService in tools.ts) as a cross-module violation",
+        "Every reported issue cites a file:line location",
+        "States no outdated arch:check facts: does not call routes-no-persistence / pure-module-files-no-io a 'warning', does not cite the old 27-warning baseline, does not present polling/settings/workspace routes as current Drizzle-in-route debt"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "review-notifications-green-ci",
+      "prompt": "Please review this PR before I merge it. It adds a `notifications` module to the server: POST /pulls/:id/notify posts the latest review of a PR as one summary comment on the GitHub PR conversation, and GET /pulls/:id/notifications lists the comments already posted. CI is green: typecheck, unit tests and `pnpm arch:check` (0 errors) all pass. The changed files are under FIXTURE_DIR/server/ and map 1:1 onto server/ in this repo (the module itself, modules/index.ts and .dependency-cruiser.cjs). Contracts and the `notifications` table migration are elsewhere in the PR and fine. List what you'd ask the author to change, with file:line and the fix.",
+      "expected_output": "Flags (1) the pathNot exemption for notifications/routes.ts added to routes-no-persistence in .dependency-cruiser.cjs — it hides the Drizzle query in GET /pulls/:id/notifications; revert it and move the query to the repository/service; (2) service.ts imports the octokit SDK and builds new Octokit() itself — add an issue-comment method to the GitHubClient port + Octokit adapter + mock and use container.github(); (3) service.ts reads process.env.DEVDIGEST_PUBLIC_URL — take it from AppConfig via the container / a constructor dep.",
+      "files": [
+        "fixtures/pr-notifications/"
+      ],
+      "assertions": [
+        "Flags the pathNot exemption for notifications/routes.ts added to routes-no-persistence in .dependency-cruiser.cjs as weakening the rule to hide the route's Drizzle query, and asks to revert it and move the query into the repository/service",
+        "Flags service.ts importing the octokit SDK and constructing new Octokit() in the application layer, and says to go through the GitHubClient port / adapter (container.github()) instead",
+        "Flags service.ts reading process.env.DEVDIGEST_PUBLIC_URL, and says to take the value from AppConfig / the container or a constructor dependency",
+        "Every reported issue cites a file:line location",
+        "States no outdated arch:check facts: does not call routes-no-persistence / pure-module-files-no-io a 'warning', does not cite the old 27-warning baseline, does not present polling/settings/workspace routes as current Drizzle-in-route debt"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "review-schedules-deep-trace",
+      "prompt": "Please review this PR before I merge it. It adds a `schedules` module to the server: a workspace sets a weekly slot per repo (weekdays + hour + timezone, optionally skipping public holidays), and an hourly `schedules.tick` job records which open PRs are due for a scheduled review and moves each schedule to its next slot. CI is green: typecheck, unit tests and `pnpm arch:check` (0 errors, 15 warnings, the same as main) all pass. The changed files are under FIXTURE_DIR/server/ and map 1:1 onto server/ in this repo (the module folder and modules/index.ts). The contracts (Schedule, ScheduleCreate, SchedulePatch, ScheduleList) and the migration for the `schedules` and `schedule_runs` tables are elsewhere in the PR and fine. List what you'd ask the author to change, with file:line and the fix.",
+      "expected_output": "Flags (1) helpers.ts → calendar.ts → node:fs: the 'pure' helper reaches a module-load readFileSync of holidays.json; load holidays in a repository/adapter and pass them in; (2) infrastructure types in the application contract: ports.ts imports Db/DbExecutor from db/client (DbExecutor params on SchedulesStore, TransactionRunner = Pick<Db,'transaction'>) and the service runs db.transaction itself → UnitOfWork port, tx stays in the repository; (3) service.runOne calls github()/listPullRequests inside the transaction callback → do the GitHub call first, open the transaction for the writes only.",
+      "files": [
+        "fixtures/pr-schedules/"
+      ],
+      "assertions": [
+        "Flags that helpers.ts is not pure because it imports ./calendar.ts, which reads holidays.json with node:fs readFileSync at module load, and says to load the holidays outside the domain (repository/adapter/config) and pass them into the helper",
+        "Flags infrastructure types leaking into the application contract — ports.ts importing Db/DbExecutor from db/client (DbExecutor parameters on SchedulesStore and/or TransactionRunner = Pick<Db,'transaction'>) with the service opening the Drizzle transaction itself — and proposes a UnitOfWork-style port with the transaction kept in the repository",
+        "Flags the GitHub call (github() / listPullRequests) made inside the db.transaction callback in service.ts runOne, and says to fetch from GitHub before opening the transaction",
+        "Every reported issue cites a file:line location",
+        "States no outdated arch:check facts: does not call routes-no-persistence / pure-module-files-no-io a 'warning', does not cite the old 27-warning baseline, does not present polling/settings/workspace routes as current Drizzle-in-route debt"
+      ]
+    }
+  ]
+}

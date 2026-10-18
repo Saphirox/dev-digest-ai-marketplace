@@ -109,6 +109,42 @@ def check_skills(plugin_dir: Path) -> None:
             err(f"{rel}: description should contain a 'Use when ...' trigger")
 
 
+AGENT_IGNORED_FIELDS = ("hooks", "mcpServers", "permissionMode")  # ignored for plugin agents
+
+
+def check_agents(plugin_dir: Path, skills_by_plugin: dict[str, set[str]]) -> None:
+    for agent_md in sorted(plugin_dir.glob("agents/*.md")):
+        rel = agent_md.relative_to(ROOT).as_posix()
+        text = agent_md.read_text(encoding="utf-8")
+        fm = parse_frontmatter(text)
+        if fm is None:
+            err(f"{rel}: missing or malformed YAML frontmatter")
+            continue
+        if fm.get("name") != agent_md.stem:
+            err(f"{rel}: agent name '{fm.get('name', '')}' != file name '{agent_md.stem}'")
+        if not fm.get("description"):
+            err(f"{rel}: missing description")
+        for field in AGENT_IGNORED_FIELDS:
+            if field in fm:
+                err(f"{rel}: '{field}' is ignored for plugin agents; use the plugin's hooks/hooks.json")
+        header = text.replace("\r\n", "\n").split("\n---", 1)[0]
+        for skill in re.findall(r"(?m)^skills:\n((?:\s+- .*\n?)+)", header + "\n"):
+            for ref in re.findall(r"- (\S+)", skill):
+                plugin, _, name = ref.rpartition(":")
+                plugin = plugin or plugin_dir.name
+                if name not in skills_by_plugin.get(plugin, set()):
+                    err(f"{rel}: preloaded skill '{ref}' not found in plugin '{plugin}'")
+
+
+def check_dependencies(where: str, manifest: dict, names: list[str]) -> None:
+    for dep in manifest.get("dependencies", []):
+        dep_name = dep.get("name") if isinstance(dep, dict) else str(dep).split("@")[0]
+        if isinstance(dep, str) and "@" in dep or isinstance(dep, dict) and dep.get("marketplace"):
+            continue  # another marketplace; not checked here
+        if dep_name not in names:
+            err(f"{where}: dependency '{dep_name}' is not a plugin in this marketplace")
+
+
 def check_name(where: str, name: str) -> None:
     if not NAME_RE.match(name):
         err(f"{where}: name must match {NAME_RE.pattern}")
@@ -173,6 +209,10 @@ def main() -> int:
     if names != sorted(names):
         err("marketplace.json: plugins must be sorted by name")
 
+    skills_by_plugin = {
+        e.get("name", ""): {p.parent.name for p in (ROOT / e["source"]).glob("skills/*/SKILL.md")}
+        for e in entries if isinstance(e.get("source"), str)
+    }
     listed_dirs = set()
     for entry in entries:
         name = entry.get("name", "")
@@ -221,6 +261,8 @@ def main() -> int:
         if (plugin_dir / "bin").exists():
             err(f"{where}: top-level bin/ is rejected by claude.ai; use scripts/")
         check_skills(plugin_dir)
+        check_agents(plugin_dir, skills_by_plugin)
+        check_dependencies(where, manifest, names)
 
     for d in sorted((ROOT / "plugins").iterdir()) if (ROOT / "plugins").is_dir() else []:
         if d.is_dir() and d.resolve() not in listed_dirs:

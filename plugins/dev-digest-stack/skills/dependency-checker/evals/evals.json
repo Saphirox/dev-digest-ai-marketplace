@@ -1,0 +1,27 @@
+{
+  "$comment": "Eval scenarios for dependency-checker (skill-creator schema). FIXTURE_DIR = a fresh copy of the acme-monorepo built by the fixture builder kept in the eval workspace (dependency-checker-workspace/build-fixture.mjs, outside the skill, which holds no JS), placed in a neutrally named folder (the path must not name the skill). Planted problems: api/ pino devDependency imported at runtime, lodash imported but undeclared, left-pad unreferenced + deprecated, request deprecated, zod 3 (api) vs zod 4 (core) with core's zod-4 schema parsed inside api, @acme/shared forked into web/src/vendor/shared, web/ chart-big 25 MB eagerly imported by one component, web/ has BOTH package-lock.json and pnpm-lock.yaml (README says web is npm), api/test fake-mod is fixture text (false positive). Baseline = same prompt with no skill.",
+  "skill_name": "dependency-checker",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-audit-ua",
+      "prompt": "Проаналізуй усі залежності нашого монорепо в FIXTURE_DIR — і кожного пакета окремо, і зв'язки між ними. Намалюй схему залежностей, опиши їх за розміром і типом (скільки важить кожен пакет), а в кінці дай пріоритизацію і поради, що робити.",
+      "expected_output": "Structured report in Ukrainian: Mermaid map with api/core/web and the core→api / web-copy links; per-package tables with size per dependency; the planted problems found and verified (fake-mod rejected); P0–P3 actions with package-manager-correct commands.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "why-node-modules-big",
+      "prompt": "web/node_modules у FIXTURE_DIR чомусь важить під 70 мегабайт, хоча це маленький фронт. Розберись, що там стільки займає, і що можна викинути або оптимізувати без ризику?",
+      "expected_output": "Size breakdown of web/ by dependency with exclusive sizes; chart-big named as the biggest removable/lazy-loadable runtime cost; typescript recognised as dev-only intrinsic; disk vs bundle distinction; lockfile mix noticed; no installs or edits.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "prod-install-readiness",
+      "prompt": "We're about to deploy FIXTURE_DIR/api to production with `pnpm install --prod --frozen-lockfile` and then `node dist/server.js`. Check the repo for dependency problems that would break that deploy or bite us soon after, and tell me whether versions are consistent across the packages. Prioritise what we must fix before the deploy.",
+      "expected_output": "pino (dev dep imported at runtime) and lodash (undeclared) flagged as deploy-blocking P0; request deprecated; zod 3 vs 4 across the @acme/shared boundary flagged as a real risk because api parses core's schema; commands use pnpm for api; fake-mod not reported as a real problem.",
+      "files": []
+    }
+  ]
+}

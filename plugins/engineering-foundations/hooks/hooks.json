@@ -1,0 +1,13 @@
+{
+  "description": "Read-only Bash allowlists for the dev-digest reviewer, planner and researcher agents",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/readonly-guard.mjs\"" }
+        ]
+      }
+    ]
+  }
+}
