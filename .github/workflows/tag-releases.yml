@@ -56,7 +56,8 @@ jobs:
 
             # The shipped files must match the tag for the current version.
             tag="${name}--v${version}"
-            if ! git diff --quiet "$tag" HEAD -- "$dir"; then
+            # evals/ holds test suites only and needs no release.
+            if ! git diff --quiet "$tag" HEAD -- "$dir" ":(exclude)${dir}evals"; then
               echo "::error file=$manifest::$dir changed after $tag without a version bump"
               status=1
             fi

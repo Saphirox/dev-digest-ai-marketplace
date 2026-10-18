@@ -58,6 +58,9 @@ scripts/check_invariants.py       repo checks beyond `claude plugin validate`
 scripts/release.py                bump version + changelog for a release
 scripts/rollback.py               restore a plugin from an earlier release tag
 scripts/build_catalog.py          catalog data for the site (api/catalog.json, llms.txt)
+plugins/<name>/evals/             eval suites for that plugin's skills and agents
+evals/                            eval engine (vitest + Claude Agent SDK), see evals/README.md
+docs/COST-BASELINE.md             cost per successful eval run, per plugin version
 site/                             catalog site on GitHub Pages (Vite + React)
 .github/workflows/                CI validation, release tagging, site deploy
 ```

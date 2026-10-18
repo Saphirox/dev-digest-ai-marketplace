@@ -176,7 +176,8 @@ def check_version_bumps(base: str, entries: list[dict]) -> None:
         if not isinstance(source, str):
             continue
         prefix = source.removeprefix("./").rstrip("/") + "/"
-        if not any(p.startswith(prefix) for p in changed):
+        # evals/ holds test suites only: changing them needs no release.
+        if not any(p.startswith(prefix) and not p.startswith(prefix + "evals/") for p in changed):
             continue
         name = entry["name"]
         manifest_path = ROOT / source / ".claude-plugin" / "plugin.json"

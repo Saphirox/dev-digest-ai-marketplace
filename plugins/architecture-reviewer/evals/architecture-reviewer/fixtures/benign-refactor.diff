@@ -1,0 +1,11 @@
+diff --git a/server/src/modules/blast/constants.ts b/server/src/modules/blast/constants.ts
+--- a/server/src/modules/blast/constants.ts
++++ b/server/src/modules/blast/constants.ts
+@@ -8,5 +8,5 @@
+ 
+-/** Top-N changed files (by additions+deletions) sampled for history. */
++/** Top-N changed files, ranked by additions + deletions, sampled for history. */
+ export const PRIOR_PR_MAX_FILES = 10;
+-/** Commits looked up per sampled file. */
++/** How many commits are looked up per sampled file. */
+ export const PRIOR_PR_COMMITS_PER_FILE = 3;

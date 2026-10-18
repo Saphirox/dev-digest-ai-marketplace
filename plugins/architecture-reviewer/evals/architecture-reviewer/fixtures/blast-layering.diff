@@ -1,0 +1,44 @@
+diff --git a/server/src/modules/blast/helpers.ts b/server/src/modules/blast/helpers.ts
+--- a/server/src/modules/blast/helpers.ts
++++ b/server/src/modules/blast/helpers.ts
+@@ -1,9 +1,10 @@
++import type { FastifyReply } from 'fastify';
+ import type { BlastRadius, DownstreamImpact, PrHistoryItem } from '@devdigest/shared';
+ import type { BlastResult } from '../repo-intel/types.js';
+ import { MAX_CALLERS_PER_SYMBOL } from '../repo-intel/constants.js';
+ import { PRIOR_PR_MAX_FILES, PRIOR_PR_MAX_RESULTS } from './constants.js';
+ import type { BlastPrFile } from './ports.js';
+@@ -13,9 +14,12 @@
+ export function toBlastRadius(
+   result: BlastResult,
+   indexedSha: string | null,
+   maxPerSymbol: number = MAX_CALLERS_PER_SYMBOL,
++  reply?: FastifyReply,
+ ): BlastRadius {
++  if (indexedSha === null) reply?.header('x-blast-degraded', '1');
+   const factsByFile = result.factsByFile ?? {};
+diff --git a/server/src/modules/blast/service.ts b/server/src/modules/blast/service.ts
+--- a/server/src/modules/blast/service.ts
++++ b/server/src/modules/blast/service.ts
+@@ -1,7 +1,9 @@
+ import PQueue from 'p-queue';
+ import type { BlastRadius, PrHistory } from '@devdigest/shared';
++import type { Db } from '../../db/client.js';
+ import { NotFoundError, ExternalServiceError } from '../../platform/errors.js';
+ import { mergePriorPrs, pickHistoryFiles, toBlastRadius, type PerShaResult } from './helpers.js';
+ import { PRIOR_PR_COMMITS_PER_FILE, PRIOR_PR_CONCURRENCY } from './constants.js';
++import { BlastRepository } from './repository.js';
+ import type { BlastIndex, BlastStore, PriorPrCache, PriorPrSource } from './ports.js';
+@@ -26,10 +28,15 @@
+ export class BlastService {
+-  constructor(private deps: BlastServiceDeps) {}
++  private store: BlastStore;
++
++  constructor(private deps: BlastServiceDeps, db: Db) {
++    this.store = new BlastRepository(db);
++  }
+ 
+   async getBlastRadius(workspaceId: string, prId: string, logger?: Logger): Promise<BlastRadius> {
+-    const pull = await this.deps.store.findPull(workspaceId, prId);
++    const pull = await this.store.findPull(workspaceId, prId);
+     if (!pull) throw new NotFoundError('Pull request not found');
