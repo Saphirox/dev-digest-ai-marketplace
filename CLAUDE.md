@@ -5,7 +5,7 @@ This repo is a Claude Code plugin marketplace named `dev-digest`. The catalog is
 ## When adding or changing plugins
 
 - Start new plugins from `templates/plugin/`. Follow CONTRIBUTING.md.
-- Any change under `plugins/<name>/` requires a semver bump of `version` in that plugin's `.claude-plugin/plugin.json` and a `CHANGELOG.md` entry. Use `python3 scripts/release.py <plugin> patch|minor|major` after committing the change; don't edit the version by hand.
+- Any change under `plugins/<name>/` (except its `evals/`) requires a semver bump of `version` in that plugin's `.claude-plugin/plugin.json` and a `CHANGELOG.md` entry. Use `python3 scripts/release.py <plugin> patch|minor|major` after committing the change; don't edit the version by hand.
 - To undo a bad release use `python3 scripts/rollback.py <plugin>`; never move or delete `<plugin>--vX.Y.Z` tags.
 - Never put `version` in a marketplace entry. Never rename an existing plugin's `name`; use `displayName` or the `renames` map.
 - Keep `plugins` in `marketplace.json` sorted by name; entry `name` must equal `plugin.json` `name`.

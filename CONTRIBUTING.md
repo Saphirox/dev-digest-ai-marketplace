@@ -85,3 +85,20 @@ Or install the whole marketplace from your checkout:
 claude plugin marketplace add ./
 claude plugin install <plugin-name>@dev-digest
 ```
+
+## Evals
+
+Each plugin keeps its eval suites next to its code, in
+`plugins/<plugin>/evals/<skill-or-agent>/` (`<name>.eval.ts`, `<name>.cases.ts`, `fixtures/`).
+The shared engine is in `evals/`; see [evals/README.md](evals/README.md).
+
+```
+cd evals && pnpm install
+pnpm eval:scaffold                          # which skills/agents have suites
+pnpm eval:scaffold --agent <agent-name>     # create a suite inside the agent's plugin
+./node_modules/.bin/vitest run <name>.eval  # run one suite (model calls; costs tokens)
+```
+
+Changes under a plugin's `evals/` need no version bump (CI and the release tagging ignore them).
+When a change could move cost or quality, rerun the baseline and update
+[docs/COST-BASELINE.md](docs/COST-BASELINE.md) in the same PR.
