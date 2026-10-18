@@ -1,6 +1,6 @@
 {
   "name": "sdd-engineering",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Spec-Driven Development pipeline: spec, plan, implement, review, test and verify with dedicated agents, plus run and retro workflows.",
   "author": {
     "name": "Saphirox",
